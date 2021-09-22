@@ -2,12 +2,30 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+import networkx as nx
+import warnings
+warnings.filterwarnings('ignore')
+
+import rdkit.Chem as Chem
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
+from rdkit.six.moves import cPickle
+from rdkit.Chem import AllChem, QED, DataStructs, Descriptors
+
 from Utils.sascore import calculateScore
-from Utils.utils import *
+
+
+def getReward(name):
+    if name == "QED":
+        return QEDReward()
+    elif name == "PLogP":
+        return PenalizedLogPReward()
 
 
 class Reward:
     def __init__(self):
+        self.vmin = -100
+        self.max_r = -10000
         return
 
     def reward(self, smiles):
@@ -17,6 +35,7 @@ class Reward:
 class PenalizedLogPReward(Reward):
     def __init__(self, *args, **kwargs):
         super(PenalizedLogPReward, self).__init__(*args, **kwargs)
+        self.vmin = -100
         return
 
     def reward(self, smiles):
@@ -39,29 +58,31 @@ class PenalizedLogPReward(Reward):
 
         mol = Chem.MolFromSmiles(smiles)
         if mol is not None:
-            log_p = Descriptors.MolLogP(mol)
-            SA = -calculateScore(mol)
+            try:
+                log_p = Descriptors.MolLogP(mol)
+                SA = -calculateScore(mol)
 
-            # cycle score
-            cycle_list = nx.cycle_basis(nx.Graph(
-                Chem.rdmolops.GetAdjacencyMatrix(mol)))
-            if len(cycle_list) == 0:
-                cycle_length = 0
-            else:
-                cycle_length = max([len(j) for j in cycle_list])
-            if cycle_length <= 6:
-                cycle_length = 0
-            else:
-                cycle_length = cycle_length - 6
-            cycle_score = -cycle_length
+                # cycle score
+                cycle_list = nx.cycle_basis(nx.Graph(
+                    Chem.rdmolops.GetAdjacencyMatrix(mol)))
+                if len(cycle_list) == 0:
+                    cycle_length = 0
+                else:
+                    cycle_length = max([len(j) for j in cycle_list])
+                if cycle_length <= 6:
+                    cycle_length = 0
+                else:
+                    cycle_length = cycle_length - 6
+                cycle_score = -cycle_length
 
-            normalized_log_p = (log_p - logP_mean) / logP_std
-            normalized_SA = (SA - SA_mean) / SA_std
-            normalized_cycle = (cycle_score - cycle_mean) / cycle_std
-            score = normalized_log_p + normalized_SA + normalized_cycle
-
+                normalized_log_p = (log_p - logP_mean) / logP_std
+                normalized_SA = (SA - SA_mean) / SA_std
+                normalized_cycle = (cycle_score - cycle_mean) / cycle_std
+                score = normalized_log_p + normalized_SA + normalized_cycle
+            except ValueError:
+                score = self.vmin
         else:
-            score = -100
+            score = self.vmin
 
         return score
 
@@ -69,6 +90,7 @@ class PenalizedLogPReward(Reward):
 class QEDReward(Reward):
     def __init__(self, *args, **kwargs):
         super(QEDReward, self).__init__(*args, **kwargs)
+        self.vmin = 0
 
     def reward(self, smiles):
         mol = Chem.MolFromSmiles(smiles)

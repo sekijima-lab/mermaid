@@ -27,6 +27,7 @@ from rdkit.six.moves import cPickle
 from rdkit.six import iteritems
 
 import math
+import hydra
 from collections import defaultdict
 
 import os.path as op
@@ -38,9 +39,9 @@ def readFragmentScores(name='fpscores'):
     import gzip
     global _fscores
     # generate the full path filename:
-    if name == "fpscores":
-        name = op.join(op.dirname(__file__), name)
-    _fscores = cPickle.load(gzip.open('%s.pkl.gz' % name))
+    # if name == "fpscores":
+    #     name = op.join(op.dirname(__file__), name)
+    _fscores = cPickle.load(gzip.open(hydra.utils.get_original_cwd() + '/Data/%s.pkl.gz' % name))
     outDict = {}
     for i in _fscores:
         for j in range(1, len(i)):

@@ -1,36 +1,16 @@
 import numpy as np
-import pandas as pd
 import math
-import time
-import itertools
-import collections
-import networkx as nx
-import random
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-import seaborn as sns
-import multiprocessing as mp
 from copy import deepcopy
-# import re
-import yaml
 import warnings
-import argparse
 warnings.filterwarnings('ignore')
 
-import rdkit.Chem as Chem
 from rdkit import DataStructs, RDLogger
-from rdkit.Chem import Recap, BRICS, QED, AllChem, rdDepictor, Draw, rdMolDescriptors, Descriptors, rdmolops
-from rdkit.six import iteritems
 RDLogger.DisableLog('rdApp.*')
 from rdkit.six.moves import cPickle
 
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from torch.utils.tensorboard import SummaryWriter
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
