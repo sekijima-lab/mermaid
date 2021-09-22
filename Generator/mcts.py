@@ -2,14 +2,36 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+import numpy as np
+import pandas as pd
+import hydra
+from config.config import cs
+from omegaconf import DictConfig
+import torch
+import time
+import warnings
+warnings.filterwarnings('ignore')
+
+import rdkit.Chem as Chem
+from rdkit import RDLogger
+from rdkit.Chem import Descriptors
+RDLogger.DisableLog('rdApp.*')
+from rdkit.six.moves import cPickle
+
+import torch.nn.functional as F
+
 from Model.model import RolloutNetwork
-from Utils.utils import *
-from Utils.reward import PenalizedLogPReward, QEDReward, ConstReward, TargetingReward
+from Utils.utils import read_smilesset, parse_smiles, convert_smiles, RootNode, ParentNode, NormalNode, \
+    trans_infix_ringnumber
+from Utils.utils import VOCABULARY
+from Utils.reward import getReward
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class MCTS(object):
     def __init__(self, init_smiles, model, vocab, Reward, max_seq=81, c=1, num_prll=256, limit=5, step=0, n_valid=0,
-                 n_invalid=0, sampling_max=False):
+                 n_invalid=0, sampling_max=False, max_r=-1000):
         self.init_smiles = parse_smiles(init_smiles.rstrip("\n"))
         self.model = model
         self.vocab = vocab
@@ -21,7 +43,7 @@ class MCTS(object):
         self.ub_prll = num_prll
         self.limit = np.sum([len(self.init_smiles)+1-i for i in range(limit)])
         self.sq = set([s for s in self.vocab if "[" in s])
-        self.max_score = -10000
+        self.max_score = max_r
         self.step = step
         self.n_valid = n_valid
         self.n_invalid = n_invalid
@@ -184,7 +206,7 @@ class ParseSelectMCTS(MCTS):
 
                     self.next_token[list(self.next_token.keys())[i]] = score
                     self.rollout_result[list(self.next_token.keys())[i]] = (smiles_concat, score)
-                    if score > -100:
+                    if score > self.Reward.vmin:
                         # self.valid_smiles[smiles_concat] = score
                         self.valid_smiles["%d:%s" % (self.step, smiles_concat)] = score
                         self.max_score = max(self.max_score, score)
@@ -222,7 +244,6 @@ class ParseSelectMCTS(MCTS):
 
                 sc = prefix + "(*)" + suffix
                 mol_sc = Chem.MolFromSmiles(sc)
-                # mol_fr = Chem.MolFromSmiles("".join(infix))
                 if mol_sc is not None:
                     n = ParentNode(prefix + "(*)" + suffix)
                     self.root.add_Node(n)
@@ -284,63 +305,65 @@ class ParseSelectMCTS(MCTS):
             df.to_csv(dir_path+f"/tree{i}.csv", index=False)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--n_step", type=int, default=200)
-    parser.add_argument("--n_iter", type=int, default=5)
-    parser.add_argument("--seq_len", type=int, default=25)
-    parser.add_argument("--input_smiles", type=str, default="c1ccccc1")
-    parser.add_argument("--model_weights", type=str, default="checkpoint/ckpt-100.pth")
-    parser.add_argument("--outdir", type=str, default="Data/result/")
-    parser.add_argument("--reward", type=str, default="plogp")
-    args = parser.parse_args()
-
+@hydra.main(config_path="../config/", config_name="config")
+def main(cfg: DictConfig):
     """--- constant ---"""
     vocab = VOCABULARY
-    n_valid = 0
-    n_invalid = 0
-    gen = {}
 
     """--- input smiles ---"""
-    input_smiles = args.input_smiles
+    start_smiles_list = read_smilesset(hydra.utils.get_original_cwd() + cfg["mcts"]["in_smiles_file"])
 
-    """--- MCTS ---"""
-    model = RolloutNetwork(len(vocab))
-    model.load_state_dict(torch.load(args.model_weights))
+    for n, start_smiles in enumerate(start_smiles_list):
+        n_valid = 0
+        n_invalid = 0
+        gen = {}
+        mcts = None
 
-    reward = PenalizedLogPReward()
-    if args.reward == "plogp":
-        reward = PenalizedLogPReward()
-    elif args.reward == "qed":
-        reward = QEDReward()
+        """--- MCTS ---"""
+        model = RolloutNetwork(len(vocab))
+        model_ver = cfg["mcts"]["model_ver"]
+        model.load_state_dict(torch.load(hydra.utils.get_original_cwd() + cfg["mcts"]["model_dir"]
+                                         + f"model-ep{model_ver}.pth"))
 
-    start = time.time()
-    for i in range(args.n_iter):
-        mcts = ParseSelectMCTS(input_smiles, model=model, vocab=vocab, Reward=reward, max_seq=args.seq_len, step=0,
-                               n_valid=n_valid, n_invalid=n_invalid)
-        mcts.search(n_step=args.n_step*(i+1), epsilon=0, loop=10)
-        n_valid += mcts.n_valid
-        n_invalid += mcts.n_invalid
-        gen = sorted(mcts.valid_smiles.items(), key=lambda x: x[1], reverse=True)
-        input_smiles = gen[0][0].split(":")[1]
-    end = time.time()
+        reward = getReward(name=cfg["mcts"]["reward_name"])
 
-    generated_smiles = pd.DataFrame(columns=["SMILES", args.reward, "MW", "step"])
-    for kv in mcts.valid_smiles.items():
-        step, smi = kv[0].split(":")
-        step = int(step)
+        input_smiles = start_smiles
+        start = time.time()
+        for i in range(cfg["mcts"]["n_iter"]):
+            mcts = ParseSelectMCTS(input_smiles, model=model, vocab=vocab, Reward=reward,
+                                   max_seq=cfg["mcts"]["seq_len"], step=cfg["mcts"]["n_step"] * i,
+                                   n_valid=n_valid, n_invalid=n_invalid, c=cfg["mcts"]["ucb_c"], max_r=reward.max_r)
+            mcts.search(n_step=cfg["mcts"]["n_step"] * (i + 1), epsilon=0, loop=10)
+            reward.max_r = mcts.max_score
+            n_valid += mcts.n_valid
+            n_invalid += mcts.n_invalid
+            gen = sorted(mcts.valid_smiles.items(), key=lambda x: x[1], reverse=True)
+            input_smiles = gen[0][0].split(":")[1]
+        end = time.time()
 
-        try:
-            w = Descriptors.MolWt(Chem.MolFromSmiles(smi))
-        except:
-            w = 0
+        generated_smiles = pd.DataFrame(columns=["SMILES", "Reward", "Imp", "MW", "step"])
+        start_reward = reward.reward(start_smiles)
+        for kv in mcts.valid_smiles.items():
+            step, smi = kv[0].split(":")
+            step = int(step)
 
-        generated_smiles.at[smi.rstrip('\n'), "SMILES"] = smi
-        generated_smiles.at[smi.rstrip('\n'), args.reward] = kv[1]
-        generated_smiles.at[smi.rstrip('\n'), "MW"] = w
-        generated_smiles.at[smi.rstrip('\n'), "step"] = step
+            try:
+                w = Descriptors.MolWt(Chem.MolFromSmiles(smi))
+            except:
+                w = 0
 
-    generated_smiles = generated_smiles.sort_values(args.reward, ascending=False)
-    generated_smiles.to_csv(f"{args.outdir}/GeneratedSMILES.csv", index=False)
+            generated_smiles.at[smi.rstrip('\n'), "SMILES"] = smi
+            generated_smiles.at[smi.rstrip('\n'), "Reward"] = kv[1]
+            generated_smiles.at[smi.rstrip('\n'), "Imp"] = kv[1] - start_reward
+            generated_smiles.at[smi.rstrip('\n'), "MW"] = w
+            generated_smiles.at[smi.rstrip('\n'), "step"] = step
+
+        generated_smiles = generated_smiles.sort_values("Reward", ascending=False)
+        generated_smiles.to_csv(hydra.utils.get_original_cwd() +
+                                cfg["mcts"]["out_dir"] + "No-{:04d}-{}.csv".format(n, start_smiles), index=False)
+
+
+if __name__ == "__main__":
+    main()
 
 
