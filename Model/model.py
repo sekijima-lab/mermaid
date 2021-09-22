@@ -1,14 +1,16 @@
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from Utils.utils import *
+
+import torch
+import torch.nn as nn
 
 
 class RolloutNetwork(nn.Module):
-    def __init__(self, vocab_size, emb_dim=128, hidden_dim=256, hlayer_num=2, dr_rate=0.2, fr_len=25):
+    def __init__(self, vocab_size, emb_dim=128, hidden_dim=256, num_layers=2, dr_rate=0.2, fr_len=25):
         super(RolloutNetwork, self).__init__()
         self.emb_fr = nn.Embedding(vocab_size, emb_dim, padding_idx=0)
-        self.lstm_fr = nn.LSTM(input_size=emb_dim, hidden_size=hidden_dim, num_layers=hlayer_num, dropout=dr_rate,
+        self.lstm_fr = nn.LSTM(input_size=emb_dim, hidden_size=hidden_dim, num_layers=num_layers, dropout=dr_rate,
                                batch_first=True)
         self.header = nn.Linear(hidden_dim, vocab_size)
         self.fr_len = fr_len

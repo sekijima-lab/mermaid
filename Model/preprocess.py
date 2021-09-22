@@ -2,7 +2,23 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from Utils.utils import *
+import itertools
+import collections
+import random
+from tqdm import tqdm
+import multiprocessing as mp
+import warnings
+import hydra
+from config.config import cs
+from omegaconf import DictConfig
+warnings.filterwarnings('ignore')
+
+import rdkit.Chem as Chem
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
+from rdkit.six.moves import cPickle
+
+from Utils.utils import parse_smiles, read_smilesset
 
 
 def get_unique_list(seq):
@@ -12,16 +28,9 @@ def get_unique_list(seq):
 
 def task_filter(smiles):
     part = []
-    # try:
-    #     sc, fr = smiles.split(".")
-    # except ValueError:
-    #     return part
 
-    mol_sc = Chem.MolFromSmiles(smiles)
-    mol_fr = Chem.MolFromSmiles("C" + smiles + "C")
-    # if mol_sc is None or mol_fr is None:
-    if mol_sc is not None and mol_fr is not None:
-        # part.append("(" + smiles + ")")
+    mol_fr = Chem.MolFromSmiles("C(" + smiles + ")C")
+    if mol_fr is not None:
         part.append(smiles)
 
     return part
@@ -47,11 +56,13 @@ def task_modf(smiles):
 
 
 def valid_parse(smiles_list):
-    with mp.Pool(mp.cpu_count()-1) as p:
+    # Filtering valid partial SMILES
+    with mp.Pool(mp.cpu_count()) as p:
         part = p.map(task_filter, smiles_list)
     part = list(itertools.chain.from_iterable(part))
     part = list(set(part))
 
+    # Adjust the ring number
     with mp.Pool(mp.cpu_count()-1) as p:
         part = p.map(task_modf, part)
     part = list(itertools.chain.from_iterable(part))
@@ -60,10 +71,10 @@ def valid_parse(smiles_list):
     return part
 
 
-def parse_exhaustive_fragment(smiles, maximum_length=20):
+def parse_exhaustive_fragment(smiles, max_length=20):
     fragments = []
     p = parse_smiles(smiles)
-    for l in range(maximum_length):
+    for l in range(max_length):
         for i in range(len(p)+1):
             fr = "".join(p[i:i + l])
             fragments.append(fr)
@@ -71,35 +82,37 @@ def parse_exhaustive_fragment(smiles, maximum_length=20):
     return fragments
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--datapath", type=str, default="Data/250k_rndm_zinc_drugs_clean.smi")
-    parser.add_argument("--out_dir", type=str, default="Data/")
-    parser.add_argument("--traintest_ratio", type=int, default=0.8)
-
-    args = parser.parse_args()
-
-    smiles_list = read_smilesset(args.datapath)
+@hydra.main(config_path="../config/", config_name="config")
+def main(cfg: DictConfig):
+    # Loading data
+    smiles_list = read_smilesset(hydra.utils.get_original_cwd()+cfg["prep"]["datapath"])
     random.shuffle(smiles_list)
-    sp = int(len(smiles_list)*args.traintest_ratio)
-    traintest_list = smiles_list[:sp]
+    sp = int(len(smiles_list) * cfg["prep"]["ratio"])
+    train_list = smiles_list[:sp]
     validation_list = smiles_list[sp:]
 
+    # Preprocessing for learning
     fragment_list = []
-    for smiles in tqdm(traintest_list):
-        fragments = parse_exhaustive_fragment(smiles)
+    for smiles in tqdm(train_list):
+        fragments = parse_exhaustive_fragment(smiles, max_length=cfg["prep"]["max_len"])
         fragment_list.extend(fragments)
     fragment_list = list(set(fragment_list))
 
     fragment_list = valid_parse(fragment_list)
 
-    with open(f"{args.out_dir}/fragments.smi", mode="w") as f:
+    # Saving data
+    outpath = hydra.utils.get_original_cwd()+cfg["prep"]["outdir"]
+    with open(f"{outpath}/fragments.smi", mode="w") as f:
         for s in fragment_list:
-            f.write(s+"\n")
+            f.write(s + "\n")
 
-    with open(f"{args.out_dir}/validation.smi", mode="w") as f:
+    with open(f"{outpath}/validation.smi", mode="w") as f:
         for s in validation_list:
-            f.write(s+"\n")
+            f.write(s + "\n")
+
+
+if __name__ == "__main__":
+    main()
 
 
 

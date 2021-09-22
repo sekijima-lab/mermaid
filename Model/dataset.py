@@ -2,7 +2,11 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from Utils.utils import *
+import torch
+from torch.utils.data import DataLoader, Dataset
+
+from Utils.utils import read_smilesset, parse_smiles, convert_smiles
+from Utils.utils import VOCABULARY
 
 
 class MolDataset(Dataset):
@@ -26,7 +30,7 @@ class MolDataset(Dataset):
         return x, x_len
 
 
-if __name__ == "__main__":
+def main():
     smiles_list = read_smilesset("Data/sample_data.smi")
     vocab = VOCABULARY
 
@@ -39,4 +43,8 @@ if __name__ == "__main__":
     for i, (x, x_len) in enumerate(mol_loader):
         print(x.shape)
         break
+
+
+if __name__ == "__main__":
+    main()
 
