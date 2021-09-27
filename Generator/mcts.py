@@ -219,7 +219,7 @@ class ParseSelectMCTS(MCTS):
 
     def backprop(self):
         for i, key in enumerate(self.next_token.keys()):
-            child = NormalNode(key)
+            child = NormalNode(key, c=self.c)
             child.id = self.total_nodes
             self.total_nodes += 1
             try:
@@ -254,7 +254,7 @@ class ParseSelectMCTS(MCTS):
                 self.backprop()
 
     def set_repnode(self, rep_file=None):
-        if rep_file is not None:
+        if len(rep_file) > 0:
             for smiles in read_smilesset(hydra.utils.get_original_cwd()+rep_file):
                 n = ParentNode(smiles)
                 self.root.add_Node(n)
