@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 @dataclass
 class PreProcess:
-    datapath: str = "/Data/sample_data.smi"
+    datapath: str = "/Data/input/sample_data.smi"
     outdir: str = "/Data/preprocessed/"
     ratio: float = 0.8
     max_len: int = 20
@@ -43,10 +43,10 @@ class TrainConfig:
 @dataclass
 class MCTSConfig:
     n_step: int = 1000
-    n_iter: int = 1
+    n_iter: int = 3
     seq_len: int = 25
     in_smiles_file: str = "/Data/input/init_smiles.smi"
-    rep_file: str = None
+    rep_file: str = ""
     modeL_dir: str = "/ckpt/"
     out_dir: str = "/Data/output/"
     ucb_c: float = 1/math.sqrt(2)
