@@ -235,20 +235,8 @@ class ParseSelectMCTS(MCTS):
             self.current_node.imm_score = max(self.current_node.imm_score, max_reward/(1+abs(max_reward)))
             self.current_node = self.current_node.parent
 
-    def search(self, n_step, epsilon=0.1, loop=10, gamma=0.90):
-        for i in range(self.l_replace+1):
-            for j in range(len(self.init_smiles)-i+1):
-                infix = self.init_smiles[j:j+i]
-                prefix = "".join(self.init_smiles[:j])
-                suffix = "".join(self.init_smiles[j + i:])
-
-                sc = prefix + "(*)" + suffix
-                mol_sc = Chem.MolFromSmiles(sc)
-                if mol_sc is not None:
-                    n = ParentNode(prefix + "(*)" + suffix)
-                    self.root.add_Node(n)
-                    c = NormalNode("&")
-                    n.add_Node(c)
+    def search(self, n_step, epsilon=0.1, loop=10, gamma=0.90, rep_file=None):
+        self.set_repnode(rep_file=rep_file)
 
         while self.step < n_step:
             self.step += 1
@@ -264,6 +252,28 @@ class ParseSelectMCTS(MCTS):
             if len(self.next_token) != 0:
                 self.simulate()
                 self.backprop()
+
+    def set_repnode(self, rep_file=None):
+        if rep_file is not None:
+            for smiles in read_smilesset(hydra.utils.get_original_cwd()+rep_file):
+                n = ParentNode(smiles)
+                self.root.add_Node(n)
+                c = NormalNode("&")
+                n.add_Node(c)
+        else:
+            for i in range(self.l_replace+1):
+                for j in range(len(self.init_smiles)-i+1):
+                    infix = self.init_smiles[j:j+i]
+                    prefix = "".join(self.init_smiles[:j])
+                    suffix = "".join(self.init_smiles[j + i:])
+
+                    sc = prefix + "(*)" + suffix
+                    mol_sc = Chem.MolFromSmiles(sc)
+                    if mol_sc is not None:
+                        n = ParentNode(prefix + "(*)" + suffix)
+                        self.root.add_Node(n)
+                        c = NormalNode("&")
+                        n.add_Node(c)
 
     def save_tree(self, dir_path):
         for i in range(len(self.root.children)):
@@ -325,7 +335,7 @@ def main(cfg: DictConfig):
         model.load_state_dict(torch.load(hydra.utils.get_original_cwd() + cfg["mcts"]["model_dir"]
                                          + f"model-ep{model_ver}.pth"))
 
-        reward = getReward(name=cfg["mcts"]["reward_name"])
+        reward = getReward(name=cfg["mcts"]["reward_name"], init_smiles=start_smiles)
 
         input_smiles = start_smiles
         start = time.time()
@@ -333,13 +343,14 @@ def main(cfg: DictConfig):
             mcts = ParseSelectMCTS(input_smiles, model=model, vocab=vocab, Reward=reward,
                                    max_seq=cfg["mcts"]["seq_len"], step=cfg["mcts"]["n_step"] * i,
                                    n_valid=n_valid, n_invalid=n_invalid, c=cfg["mcts"]["ucb_c"], max_r=reward.max_r)
-            mcts.search(n_step=cfg["mcts"]["n_step"] * (i + 1), epsilon=0, loop=10)
+            mcts.search(n_step=cfg["mcts"]["n_step"] * (i + 1), epsilon=0, loop=10, rep_file=cfg["mcts"]["rep_file"])
             reward.max_r = mcts.max_score
             n_valid += mcts.n_valid
             n_invalid += mcts.n_invalid
             gen = sorted(mcts.valid_smiles.items(), key=lambda x: x[1], reverse=True)
             input_smiles = gen[0][0].split(":")[1]
         end = time.time()
+        print("Elapsed Time: %f" % (end-start))
 
         generated_smiles = pd.DataFrame(columns=["SMILES", "Reward", "Imp", "MW", "step"])
         start_reward = reward.reward(start_smiles)
