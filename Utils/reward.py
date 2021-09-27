@@ -20,8 +20,6 @@ def getReward(name, init_smiles):
         return QEDReward()
     elif name == "PLogP":
         return PenalizedLogPReward()
-    elif name == "ConstQED":
-        return ConstReward(QEDReward(), init_smiles, threshold=0.6)
 
 
 class Reward:
