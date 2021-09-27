@@ -15,11 +15,13 @@ from rdkit.Chem import AllChem, QED, DataStructs, Descriptors
 from Utils.sascore import calculateScore
 
 
-def getReward(name):
+def getReward(name, init_smiles):
     if name == "QED":
         return QEDReward()
     elif name == "PLogP":
         return PenalizedLogPReward()
+    elif name == "ConstQED":
+        return ConstReward(QEDReward(), init_smiles, threshold=0.6)
 
 
 class Reward:
@@ -119,24 +121,25 @@ class SAReward(Reward):
 
 class ConstReward:
     # Tanimoto Similarity based on ECFP4
-    def __init__(self, reward_module, threshold=0.6):
+    def __init__(self, reward_module, init_smiles, threshold=0.6):
+        self.vmin = 0
+        self.max_r = -10000
         self.reward_module = reward_module
         self.th = threshold
         self.source_fp = None
-
-    def setInitial(self, init_smiles, threshold):
         self.source_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(init_smiles), 2)
-        self.th = threshold
 
     def reward(self, smiles):
         mol = Chem.MolFromSmiles(smiles)
-        try:
-            target_fp = AllChem.GetMorganFingerprint(mol, 2)
-            sim = DataStructs.TanimotoSimilarity(self.source_fp, target_fp)
-        except ValueError:
-            sim = 0
+        sim = 0
+        if mol is not None:
+            try:
+                target_fp = AllChem.GetMorganFingerprint(mol, 2)
+                sim = DataStructs.TanimotoSimilarity(self.source_fp, target_fp)
+            except ValueError:
+                sim = 0
 
-        score = -100
+        score = self.vmin - 1
         if sim > self.th:
             try:
                 if mol is not None:
