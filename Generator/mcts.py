@@ -333,7 +333,7 @@ def main(cfg: DictConfig):
         model = RolloutNetwork(len(vocab))
         model_ver = cfg["mcts"]["model_ver"]
         model.load_state_dict(torch.load(hydra.utils.get_original_cwd() + cfg["mcts"]["model_dir"]
-                                         + f"model-ep{model_ver}.pth"))
+                                         + f"model-ep{model_ver}.pth",  map_location=torch.device('cpu')))
 
         reward = getReward(name=cfg["mcts"]["reward_name"], init_smiles=start_smiles)
 
