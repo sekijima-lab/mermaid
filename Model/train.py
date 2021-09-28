@@ -40,7 +40,6 @@ def train(cfg):
     optimizer = optim.Adam(model.parameters(), lr=cfg["train"]["lr"])
 
     # Log
-    mlflow.set_tracking_uri("file:/" + hydra.utils.get_original_cwd() + "/mlruns")
     mlflow.start_run()
     mlflow.log_param("batch_size", cfg["train"]["batch_size"])
     mlflow.log_param("lr", cfg["train"]["lr"])
