@@ -16,7 +16,6 @@ import rdkit.Chem as Chem
 from rdkit import RDLogger
 from rdkit.Chem import Descriptors
 RDLogger.DisableLog('rdApp.*')
-from rdkit.six.moves import cPickle
 
 import torch.nn.functional as F
 
@@ -315,7 +314,7 @@ class ParseSelectMCTS(MCTS):
             df.to_csv(dir_path+f"/tree{i}.csv", index=False)
 
 
-@hydra.main(config_path="../config/", config_name="config")
+@hydra.main(version_base="1.1", config_path="../config/", config_name="config")
 def main(cfg: DictConfig):
     """--- constant ---"""
     vocab = VOCABULARY
@@ -332,8 +331,8 @@ def main(cfg: DictConfig):
         """--- MCTS ---"""
         model = RolloutNetwork(len(vocab))
         model_ver = cfg["mcts"]["model_ver"]
-        model.load_state_dict(torch.load(hydra.utils.get_original_cwd() + cfg["mcts"]["model_dir"]
-                                         + f"model-ep{model_ver}.pth",  map_location=torch.device('cpu')))
+        model.load_weights(hydra.utils.get_original_cwd() + cfg["mcts"]["model_dir"]
+                           + f"model-ep{model_ver}.pth")
 
         reward = getReward(name=cfg["mcts"]["reward_name"], init_smiles=start_smiles)
 

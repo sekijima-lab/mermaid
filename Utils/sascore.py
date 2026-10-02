@@ -23,8 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
-from rdkit.six.moves import cPickle
-from rdkit.six import iteritems
+import pickle as cPickle
 
 import math
 import hydra
@@ -63,7 +62,7 @@ def calculateScore(m):
     fps = fp.GetNonzeroElements()
     score1 = 0.
     nf = 0
-    for bitId, v in iteritems(fps):
+    for bitId, v in fps.items():
         nf += v
         sfp = bitId
         score1 += _fscores.get(sfp, -4) * v

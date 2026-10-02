@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import numpy as np
@@ -99,8 +100,11 @@ def train(cfg):
     mlflow.end_run()
 
 
-@hydra.main(config_path="../config/", config_name="config")
+@hydra.main(version_base="1.1", config_path="../config/", config_name="config")
 def main(cfg: DictConfig):
+    # Retain the historical local file backend for CLI runs.
+    os.environ.setdefault("MLFLOW_TRACKING_URI", (Path.cwd() / "mlruns").as_uri())
+    os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
     train(cfg)
 
 

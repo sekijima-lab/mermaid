@@ -9,7 +9,6 @@ warnings.filterwarnings('ignore')
 import rdkit.Chem as Chem
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-from rdkit.six.moves import cPickle
 from rdkit.Chem import AllChem, QED, DataStructs, Descriptors
 
 from Utils.sascore import calculateScore

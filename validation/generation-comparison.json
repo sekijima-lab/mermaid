@@ -1,0 +1,12 @@
+{
+  "cases": 6,
+  "generated_molecules": 39,
+  "pass": true,
+  "dropout": "disabled in comparison only; production behavior unchanged",
+  "hash_seed": 0,
+  "seeds": [
+    0,
+    1,
+    2
+  ]
+}

@@ -1,7 +1,7 @@
 import math
 
 from hydra.core.config_store import ConfigStore
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -57,10 +57,10 @@ class MCTSConfig:
 
 @dataclass
 class Config:
-    prep: PreProcess = PreProcess()
-    model: ModelConfig = ModelConfig()
-    train: TrainConfig = TrainConfig()
-    mcts: MCTSConfig = MCTSConfig()
+    prep: PreProcess = field(default_factory=PreProcess)
+    model: ModelConfig = field(default_factory=ModelConfig)
+    train: TrainConfig = field(default_factory=TrainConfig)
+    mcts: MCTSConfig = field(default_factory=MCTSConfig)
 
 
 cs = ConfigStore.instance()

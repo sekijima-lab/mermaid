@@ -7,7 +7,6 @@ warnings.filterwarnings('ignore')
 
 from rdkit import DataStructs, RDLogger
 RDLogger.DisableLog('rdApp.*')
-from rdkit.six.moves import cPickle
 
 
 import torch
@@ -179,7 +178,7 @@ def read_vocabulary(path):
         vocabulary = []
         s = f.read()
         for w in s.split(","):
-            if w is not "":
+            if w != "":
                 vocabulary.append(w)
 
     return vocabulary

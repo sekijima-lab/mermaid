@@ -16,7 +16,6 @@ warnings.filterwarnings('ignore')
 import rdkit.Chem as Chem
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-from rdkit.six.moves import cPickle
 
 from Utils.utils import parse_smiles, read_smilesset
 
@@ -82,7 +81,7 @@ def parse_exhaustive_fragment(smiles, max_length=20):
     return fragments
 
 
-@hydra.main(config_path="../config/", config_name="config")
+@hydra.main(version_base="1.1", config_path="../config/", config_name="config")
 def main(cfg: DictConfig):
     # Loading data
     smiles_list = read_smilesset(hydra.utils.get_original_cwd()+cfg["prep"]["datapath"])
