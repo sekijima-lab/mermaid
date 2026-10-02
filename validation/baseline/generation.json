@@ -1,0 +1,89 @@
+[
+  {
+    "input": "CCO",
+    "seed": 0,
+    "generated": {
+      "1:C([C@](C)(N)C(=O)NCCC[C@@H])CO": -2.7620210474297537,
+      "1:C(C(=O)Oc1ccccc1/C=C)CO": 0.5670181297988651,
+      "2:CCO(N1C(=O)CCN1C)": -2.175500764486291,
+      "2:CCO(CCc1nn(C)cc1)": -0.04041028679843606,
+      "3:CC(C1(C)CCCC1)O": -0.3398981627935195,
+      "3:CC(S(=O)(=O)N(C))O": -2.9013389467996755
+    },
+    "n_valid": 6,
+    "n_invalid": 0
+  },
+  {
+    "input": "CCO",
+    "seed": 1,
+    "generated": {
+      "1:CC(n1c[nH+]cc1)O": -4.985131425815773,
+      "1:CC(Cc1ccccc1C#CCC)O": 0.33860170515834953,
+      "1:CC(c1ncnn1[C@@H](C(C)C)C)O": -1.1739428644870986,
+      "2:CCO(N=C(N1CCCCC1))": -0.49032996681043317,
+      "2:CCO(CN(Cc1ccccc1)C[C@@H](C))": 1.0088044507810356,
+      "3:C(C[NH+]1C[C@@H]1CCC(O))CO": -5.30643974038702,
+      "3:C(c1cc(O)ccc1C)CO": 0.6323040888599675
+    },
+    "n_valid": 7,
+    "n_invalid": 1
+  },
+  {
+    "input": "CCO",
+    "seed": 2,
+    "generated": {
+      "1:C(C(C)CCN)CO": -1.0101661079437283,
+      "1:C(c1ccccc1C(=O)N)CO": 0.22759588961130106,
+      "2:CCO([C@@H](C)NOC)": -1.9849820110693979,
+      "2:CCO(C[C@H](C(=O)N1CCCC1))": -0.5556555786234184,
+      "3:CC(CCNC(=O)Nc1cccc(C)c1)O": 0.7707263493916465
+    },
+    "n_valid": 5,
+    "n_invalid": 2
+  },
+  {
+    "input": "Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21",
+    "seed": 0,
+    "generated": {
+      "1:Cn1cc(C(=O)Nc2ccccc2C([C@](C)(N)C(=O)NCCC[C@@H])c2ccccc2)c(=O)c2cccn21": -0.44301477779899145,
+      "1:Cn1cc(C(=O)Nc2ccccc2C(C(=O)Oc2ccccc2/C=C)c2ccccc2)c(=O)c2cccn21": 1.720526329084077,
+      "2:Cn1cc(C(=O)Nc2ccccc2C(N2C(=O)CCN2C)NCCc2ccccc2)c(=O)c2cccn21": -0.3715111795449578,
+      "2:Cn1cc(C(=O)Nc2ccccc2C(CCc2nn(C)cc2)NCCc2ccccc2)c(=O)c2cccn21": 0.8485096504667085,
+      "3:Cn1cc(C(C[NH+]2C(C)CCN2)c2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21": -1.9789904025922564,
+      "3:Cn1cc(C(/C(=C/c2ccccc2O))c2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21": 1.554414761612383,
+      "3:Cn1cc(C(c2ccccc2NC(=O)NC)c2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21": 1.2280980925779565
+    },
+    "n_valid": 7,
+    "n_invalid": 0
+  },
+  {
+    "input": "Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21",
+    "seed": 1,
+    "generated": {
+      "1:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2(n3c[nH+]cc3)cc2)c(=O)c2cccn21": -1.3847956453897945,
+      "1:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2(Cc3ccccc3C#CCC)cc2)c(=O)c2cccn21": 1.2815977750977399,
+      "1:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2(c3ncnn3[C@@H](C(C)C)C)cc2)c(=O)c2cccn21": -0.21881014168787372,
+      "2:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2(N=C(N2CCCCC2)))c(=O)c2cccn21": 1.1924915899548272,
+      "2:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2(CN(Cc2ccccc2)C[C@@H](C)))c(=O)c2cccn21": 2.055829003502547,
+      "3:Cn1cc(C(=O)Nc2ccccc2C(=O)(NC[C@@H](C)CC(=O)NN))c(=O)c2cccn21": -1.3906902710882354,
+      "3:Cn1cc(C(=O)Nc2ccccc2C(=O)([C@@H](C(=O)N2CCOCC2)))c(=O)c2cccn21": -0.7662873712762308
+    },
+    "n_valid": 7,
+    "n_invalid": 1
+  },
+  {
+    "input": "Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21",
+    "seed": 2,
+    "generated": {
+      "1:Cn1cc(C(C(C)CCN)c2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21": 0.2954901061545744,
+      "1:Cn1cc(C(c2ccccc2C(=O)N)c2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cccn21": 0.8452676690291818,
+      "2:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cc(Cc3cccc(Cl)c3Cl)cn21": 2.761367247730337,
+      "2:Cn1cc(C(=O)Nc2ccccc2C(=O)NCCc2ccccc2)c(=O)c2cc(n3cccc3Oc3ccncc3)cn21": 1.724020404909403,
+      "3:Cn1cc(C(=O)N(/C=C/[NH+]=C)C(=O)NCCc2ccccc2)c(=O)c2cccn21": -2.1258317623793643,
+      "3:Cn1cc(C(=O)N(CCCc2ccccc2)C(=O)NCCc2ccccc2)c(=O)c2cccn21": 1.3365965715907766,
+      "3:Cn1cc(C(=O)N(SCC(=O)N2CCCCC2)C(=O)NCCc2ccccc2)c(=O)c2cccn21": 0.14759467679122626
+    },
+    "n_valid": 7,
+    "n_invalid": 0
+  }
+]

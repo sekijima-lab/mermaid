@@ -1,0 +1,75 @@
+{
+  "logits": {
+    "max_abs": 7.62939453125e-06,
+    "limit": 0.0001,
+    "pass": true
+  },
+  "probabilities": {
+    "max_abs": 1.4901161193847656e-06,
+    "limit": 1e-05,
+    "pass": true
+  },
+  "argmax": {
+    "pass": true
+  },
+  "tokens": {
+    "pass": true
+  },
+  "gradients": {
+    "max_abs": 1.043081283569336e-07,
+    "limit": 1e-05,
+    "pass": true,
+    "per_tensor": {
+      "grad_emb_fr.weight": 1.909211277961731e-08,
+      "grad_lstm_fr.weight_ih_l0": 1.043081283569336e-07,
+      "grad_lstm_fr.weight_hh_l0": 5.9138983488082886e-08,
+      "grad_lstm_fr.bias_ih_l0": 7.12461769580841e-08,
+      "grad_lstm_fr.bias_hh_l0": 7.194466888904572e-08,
+      "grad_lstm_fr.weight_ih_l1": 1.5745172277092934e-08,
+      "grad_lstm_fr.weight_hh_l1": 1.4901161193847656e-08,
+      "grad_lstm_fr.bias_ih_l1": 1.816079020500183e-08,
+      "grad_lstm_fr.bias_hh_l1": 1.816079020500183e-08,
+      "grad_header.weight": 4.842877388000488e-08,
+      "grad_header.bias": 3.5390257835388184e-08
+    }
+  },
+  "one_step_weights": {
+    "max_abs": 8.46758484840393e-06,
+    "limit": 1e-05,
+    "pass": true,
+    "per_tensor": {
+      "weight_emb_fr.weight": 5.960464477539063e-08,
+      "weight_lstm_fr.weight_ih_l0": 8.123926818370819e-06,
+      "weight_lstm_fr.weight_hh_l0": 8.46758484840393e-06,
+      "weight_lstm_fr.bias_ih_l0": 3.725290298461914e-09,
+      "weight_lstm_fr.bias_hh_l0": 3.725290298461914e-09,
+      "weight_lstm_fr.weight_ih_l1": 4.1425228118896484e-06,
+      "weight_lstm_fr.weight_hh_l1": 1.6354024410247803e-06,
+      "weight_lstm_fr.bias_ih_l1": 8.195638656616211e-08,
+      "weight_lstm_fr.bias_hh_l1": 8.568167686462402e-08,
+      "weight_header.weight": 4.470348358154297e-08,
+      "weight_header.bias": 0.0
+    }
+  },
+  "loss": {
+    "max_abs": 0.0,
+    "limit": 1e-05,
+    "pass": true
+  },
+  "qed": {
+    "max_abs": 1.1102230246251565e-16,
+    "limit": 1e-08,
+    "pass": true,
+    "differences": []
+  },
+  "penalized_logp": {
+    "max_abs": 0.0,
+    "limit": 1e-06,
+    "pass": true,
+    "differences": []
+  },
+  "preprocessing": {
+    "pass": true
+  },
+  "pass": true
+}

@@ -1,0 +1,24 @@
+{
+  "torch": "2.14.1",
+  "mlflow": "3.16.1",
+  "params": {
+    "epoch": "1",
+    "batch_size": "8",
+    "lr": "0.0001"
+  },
+  "metrics": {
+    "Train total loss": 4.173778057098389,
+    "Test total loss": 4.161930561065674
+  },
+  "artifact_contents": "log.txt",
+  "generated": {
+    "1:CC(C)[C@](C(F)(F)F)O": 0.5924665295612149,
+    "1:CC([C@@H](C(=O)N1CCCCC1))O": 0.6583822756048108,
+    "2:CCO(Nc1ncccc1)": 0.6416379751937179,
+    "2:CCO(CCC[NH+](C1CCCCC1))": 0.6157310395983081,
+    "2:CCO(c2ccccc2Nc1COc1)": 0.7920942846294723,
+    "3:C(CC(C#N)[C@@H])CO": 0.5794947456119823
+  },
+  "n_valid": 6,
+  "n_invalid": 1
+}

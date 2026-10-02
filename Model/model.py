@@ -27,4 +27,8 @@ class RolloutNetwork(nn.Module):
 
         return y
 
+    def load_weights(self, path):
+        """Load a tensor-only state_dict without general pickle deserialization."""
+        self.load_state_dict(torch.load(path, map_location="cpu", weights_only=True))
+
 

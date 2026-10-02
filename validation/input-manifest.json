@@ -1,0 +1,7 @@
+{
+  "ckpt/model-ep100.pth": "cbfba8b0c4678471e2a7cc0a264e904a494866741cb5d9d16c5f6ca0d5d5813e",
+  "Data/fpscores.pkl.gz": "10dcef9340c873e7b987924461b0af5365eb8dd96be607203debe8ddf80c1e73",
+  "Data/preprocessed/fragments.smi": "05bd1a51b052167c33b13a09587b877c8300162edc11194b04b136b86a7babb7",
+  "Data/input/sample_data.smi": "691086a7a970b4c26340c41f7636d82fcbd806ebf2068baa2e72f20e8ac292e3",
+  "Data/input/init_smiles.smi": "795d20f10ad9d2714e111d1fa569a65bc23942b39980db9713d0422a0dde40cd"
+}

@@ -1,0 +1,1 @@
+{"original": "[CH3:1][n:2]1[cH:3][c:5]([C:8](=[O:12])[NH:13][c:15]2[cH:16][cH:18][cH:21][cH:19][c:17]2[C:20](=[O:22])[NH:23][CH2:24][CH2:25][c:26]2[cH:27][cH:29][cH:31][cH:30][cH:28]2)[c:9](=[O:14])[c:7]2[n:4]1[cH:6][cH:10][cH:11]2", "fragments": ["*CNC(=O)c1ccccc1NC(=O)c1cn(C)n2cccc2c1=O", "*c1cccc(C(=O)NCCc2ccccc2)c1NC=O"]}
